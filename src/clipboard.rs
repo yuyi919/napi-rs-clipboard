@@ -26,7 +26,7 @@ pub fn read_image(ctx: &ClipboardContext, kind: Option<ImageFormatKind>) -> Opti
 }
 
 pub fn write_image(ctx: &ClipboardContext, bytes: Buffer) -> Option<()> {
-  let image_data = RustImageData::from_bytes(&bytes.to_vec()).ok()?;
+  let image_data = RustImageData::from_bytes(&bytes).ok()?;
   ctx.set_image(image_data).ok()
 }
 
@@ -114,11 +114,11 @@ impl WriteTask {
     handle: Box<dyn FnMut(&crate::Clipboard) -> bool + Send>,
   ) -> WriteTask {
     // 创建异步任务
-    let task = WriteTask {
+    
+    WriteTask {
       clipboard: clipboard.clone(),
       handle,
-    };
-    task
+    }
   }
 }
 

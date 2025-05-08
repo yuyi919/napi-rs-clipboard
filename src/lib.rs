@@ -95,7 +95,7 @@ impl Clipboard {
     println!("[clipboard] init ctx");
     drop(guard);
     let guard = self.instance.read().unwrap();
-    return Some(guard);
+    Some(guard)
   }
 
   pub fn try_read<U, F>(&self, f: F) -> Option<U>
@@ -104,7 +104,7 @@ impl Clipboard {
   {
     let guard = self.inner_read()?;
     let ctx = guard.as_ref()?;
-    return f(ctx);
+    f(ctx)
   }
 
   #[napi]
@@ -119,7 +119,7 @@ impl Clipboard {
   #[napi]
   pub fn set_text(&self, text: String) -> bool {
     if wsl::is_wsl() {
-      return set_wsl_clipboard(text).is_ok();
+      set_wsl_clipboard(text).is_ok()
     } else if env::var("SSH_CLIENT").is_ok() {
       // we're in an SSH session, so set the clipboard using OSC 52 escape sequence
       set_clipboard_osc_52(text);
@@ -144,7 +144,7 @@ impl Clipboard {
       // we're probably running on a host/primary OS, so use the default clipboard
       let ctx = self.inner_read()?;
       let ctx = ctx.as_ref()?;
-      clipboard::get_text(&ctx)
+      clipboard::get_text(ctx)
     }
   }
 
@@ -158,7 +158,7 @@ impl Clipboard {
   #[napi]
   pub fn write_files(&self, files: Vec<String>) -> bool {
     self
-      .try_read(|ctx| clipboard::set_files(&ctx, files))
+      .try_read(|ctx| clipboard::set_files(ctx, files))
       .is_some()
   }
 
@@ -216,8 +216,7 @@ impl Clipboard {
       clipboard::WriteTask::new(
         self,
         Box::new(move |ctx| {
-          let r = ctx.write_image(img.clone());
-          r
+          ctx.write_image(img.clone())
         }),
       ),
       signal,
