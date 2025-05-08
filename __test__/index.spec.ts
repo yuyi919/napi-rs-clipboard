@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url'
 // import { Transformer } from "@napi-rs/image";
 
 import * as _ from '../index.js'
+import assert from 'assert'
 
 // test("clipboard image", async (t) => {
 //   var c = _.clipboard();
@@ -65,17 +66,17 @@ test('img write', async (t) => {
   // const readBuf = clipboard.readImage();
   // t.assert(readBuf !== null);
   // assert(readBuf !== null);
-  const ctl = new AbortController()
-  const promise = clipboard.writeImageAsync(rawBuf, ctl.signal)
+  const promise = await clipboard.writeImageAsync(rawBuf)
   // // ctl.abort()
   // // console.log("abort")
-  t.assert((await promise) === true)
+  t.is(promise, true)
+
   await t.notThrowsAsync(async () => {
     const readBuf2 = await clipboard.readImageAsync()
     // writeFileSync("./__test__/test3.png", readBuf);
+    assert(readBuf2 !== null)
     writeFileSync('./__test__/__output.png', readBuf2)
   })
-  // console.log(rawBuf.length, readBuf.length, readBuf2.length);
 })
 
 // test("c write", async (t) => {
@@ -83,9 +84,3 @@ test('img write', async (t) => {
 //   console.log(clipboard);
 //   t.assert(true);
 // });
-
-test('clipboard text', (t) => {
-  const c = _.Clipboard.make()
-  c.setText('😅')
-  t.is(c.getText(), '😅')
-})

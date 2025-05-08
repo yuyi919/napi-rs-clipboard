@@ -86,6 +86,7 @@
       "ts": "module"
     },
     "timeout": "2m",
+    "concurrency": 1,
     "workerThreads": false,
     "environmentVariables": {
       "OXC_TSCONFIG_PATH": "./__test__/tsconfig.json"

@@ -14,8 +14,9 @@ export declare class Clipboard {
    * Copy text to the clipboard. Has special handling for WSL and SSH sessions, otherwise
    * falls back to the cross-platform `clipboard` crate
    */
-  setText(text: string): boolean
+  setText(text: string): void
   getText(): string | null
+  getTextAsync(): Promise<string>
   readFiles(): Array<string> | null
   writeFiles(files: Array<string>): boolean
   readHtml(): string | null

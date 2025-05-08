@@ -98,13 +98,16 @@ impl Clipboard {
     Some(guard)
   }
 
-  pub fn try_read<U, F>(&self, f: F) -> Option<U>
+  pub fn try_read<U, F>(&self, f: F) -> Result<U>
   where
-    F: FnOnce(&clipboard_rs::ClipboardContext) -> Option<U>,
+    F: FnOnce(&clipboard_rs::ClipboardContext) -> clipboard_rs::Result<U>,
   {
-    let guard = self.inner_read()?;
-    let ctx = guard.as_ref()?;
-    f(ctx)
+    let guard = self.inner_read().unwrap();
+    let ctx = guard.as_ref().unwrap();
+    match f(ctx) {
+      Ok(t) => Ok(t),
+      Err(err) => Err(Error::new(GenericFailure, format!("{err}"))),
+    }
   }
 
   #[napi]
@@ -117,63 +120,66 @@ impl Clipboard {
   /// Copy text to the clipboard. Has special handling for WSL and SSH sessions, otherwise
   /// falls back to the cross-platform `clipboard` crate
   #[napi]
-  pub fn set_text(&self, text: String) -> bool {
+  pub fn set_text(&self, text: String) -> Result<()> {
     if wsl::is_wsl() {
-      set_wsl_clipboard(text).is_ok()
+      set_wsl_clipboard(text)
     } else if env::var("SSH_CLIENT").is_ok() {
       // we're in an SSH session, so set the clipboard using OSC 52 escape sequence
       set_clipboard_osc_52(text);
-      return true;
+      return Ok(());
     } else {
       // we're probably running on a host/primary OS, so use the default clipboard
-      return self
-        .try_read(|ctx| clipboard::set_text(ctx, text))
-        .is_some();
+      return self.try_read(|ctx| clipboard::set_text(ctx, text));
+    }
+  }
+
+  fn _get_text(&self) -> Result<String> {
+    if wsl::is_wsl() {
+      let stdout = cmd!("powershell.exe", "get-clipboard").read()?;
+      Ok(stdout.trim().to_string())
+    } else if env::var("SSH_CLIENT").is_ok() {
+      Err(Error::new(GenericFailure, "SSH clipboard not supported"))
+      // None
+    } else {
+      // we're probably running on a host/primary OS, so use the default clipboard
+      self.try_read(clipboard::get_text)
     }
   }
 
   #[napi]
   pub fn get_text(&self) -> Option<String> {
-    if wsl::is_wsl() {
-      let stdout = cmd!("powershell.exe", "get-clipboard").read().ok()?;
-      Some(stdout.trim().to_string())
-    } else if env::var("SSH_CLIENT").is_ok() {
-      // Err(Error::new(GenericFailure, "SSH clipboard not supported"))
-      None
-    } else {
-      // we're probably running on a host/primary OS, so use the default clipboard
-      let ctx = self.inner_read()?;
-      let ctx = ctx.as_ref()?;
-      clipboard::get_text(ctx)
-    }
+    self._get_text().ok()
+  }
+
+  #[napi]
+  pub async fn get_text_async(&self) -> Result<String> {
+    self._get_text()
   }
 
   #[napi]
   pub fn read_files(&self) -> Option<Vec<String>> {
     let ctx = self.inner_read()?;
     let ctx = ctx.as_ref()?;
-    clipboard::get_files(ctx)
+    clipboard::get_files(ctx).ok()
   }
 
   #[napi]
   pub fn write_files(&self, files: Vec<String>) -> bool {
     self
       .try_read(|ctx| clipboard::set_files(ctx, files))
-      .is_some()
+      .is_ok()
   }
 
   #[napi]
   pub fn read_html(&self) -> Option<String> {
     let ctx = self.inner_read()?;
     let ctx = ctx.as_ref()?;
-    clipboard::get_html(ctx)
+    clipboard::get_html(ctx).ok()
   }
 
   #[napi]
   pub fn write_html(&self, html: String) -> bool {
-    self
-      .try_read(|ctx| clipboard::set_html(ctx, html))
-      .is_some()
+    self.try_read(|ctx| clipboard::set_html(ctx, html)).is_ok()
   }
 
   #[napi]
@@ -189,14 +195,14 @@ impl Clipboard {
   pub fn read_image(&self, kind: Option<clipboard::ImageFormatKind>) -> Option<Buffer> {
     let ctx = self.inner_read()?;
     let ctx = ctx.as_ref()?;
-    clipboard::read_image(ctx, kind)
+    clipboard::read_image(ctx, kind).ok()
   }
 
   #[napi]
   pub fn write_image(&self, img: Buffer) -> bool {
     self
       .try_read(|ctx| clipboard::write_image(ctx, img))
-      .is_some()
+      .is_ok()
   }
 
   #[napi]

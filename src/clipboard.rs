@@ -9,41 +9,51 @@ pub fn ctx() -> Option<ClipboardContext> {
   ClipboardContext::new().ok()
 }
 
-pub fn read_image(ctx: &ClipboardContext, kind: Option<ImageFormatKind>) -> Option<Buffer> {
-  let img = ctx.get_image().ok()?;
+pub fn read_image(
+  ctx: &ClipboardContext,
+  kind: Option<ImageFormatKind>,
+) -> clipboard_rs::Result<Buffer> {
+  let img = ctx.get_image()?;
 
-  let png = (match kind.unwrap_or_default() {
+  let png = match kind.unwrap_or_default() {
     ImageFormatKind::Jpeg => img.to_jpeg(),
     #[cfg(target_os = "windows")]
     ImageFormatKind::Bmp => img.to_bitmap(),
     _ => img.to_png(),
-  })
-  .ok()?;
+  };
+  let png = png?;
 
   let buf: Buffer = png.get_bytes().into();
 
-  Some(buf)
+  Ok(buf)
 }
 
-pub fn write_image(ctx: &ClipboardContext, bytes: Buffer) -> Option<()> {
-  let image_data = RustImageData::from_bytes(&bytes).ok()?;
-  ctx.set_image(image_data).ok()
+pub fn write_image(ctx: &ClipboardContext, bytes: Buffer) -> clipboard_rs::Result<()> {
+  let image_data = RustImageData::from_bytes(&bytes)?;
+  ctx.set_image(image_data)
 }
 
-pub fn get_text(ctx: &ClipboardContext) -> Option<String> {
-  ctx.get_text().ok()
+pub fn get_html(ctx: &ClipboardContext) -> clipboard_rs::Result<String> {
+  ctx.get_html()
 }
 
-pub fn get_files(ctx: &ClipboardContext) -> Option<Vec<String>> {
-  ctx.get_files().ok()
+pub fn set_html(ctx: &ClipboardContext, text: String) -> clipboard_rs::Result<()> {
+  ctx.set_html(text)
 }
 
-pub fn get_html(ctx: &ClipboardContext) -> Option<String> {
-  ctx.get_html().ok()
+pub fn get_text(ctx: &ClipboardContext) -> clipboard_rs::Result<String> {
+  ctx.get_text()
 }
 
-pub fn set_html(ctx: &ClipboardContext, text: String) -> Option<()> {
-  ctx.set_html(text).ok()
+pub fn set_text(ctx: &ClipboardContext, text: String) -> clipboard_rs::Result<()> {
+  ctx.set_text(text)
+}
+
+pub fn get_files(ctx: &ClipboardContext) -> clipboard_rs::Result<Vec<String>> {
+  ctx.get_files()
+}
+pub fn set_files(ctx: &ClipboardContext, files: Vec<String>) -> clipboard_rs::Result<()> {
+  ctx.set_files(files)
 }
 
 #[derive(Default)]
@@ -95,14 +105,6 @@ pub fn get_all_text_kind(ctx: &ClipboardContext) -> Option<Vec<OutputContentForm
   Some(formats)
 }
 
-pub fn set_files(ctx: &ClipboardContext, files: Vec<String>) -> Option<()> {
-  ctx.set_files(files).ok()
-}
-
-pub fn set_text(ctx: &ClipboardContext, text: String) -> Option<()> {
-  ctx.set_text(text).ok()
-}
-
 pub struct WriteTask {
   clipboard: crate::Clipboard,
   handle: Box<dyn FnMut(&crate::Clipboard) -> bool + Send>, //   pub img: Buffer,
@@ -114,7 +116,6 @@ impl WriteTask {
     handle: Box<dyn FnMut(&crate::Clipboard) -> bool + Send>,
   ) -> WriteTask {
     // 创建异步任务
-
     WriteTask {
       clipboard: clipboard.clone(),
       handle,
@@ -128,10 +129,10 @@ impl Task for WriteTask {
   type JsValue = bool;
 
   fn compute(&mut self) -> Result<Self::Output> {
-    Ok(true)
+    Ok((self.handle)(&self.clipboard))
   }
 
   fn resolve(&mut self, _env: Env, _output: Self::Output) -> Result<Self::JsValue> {
-    Ok((self.handle)(&self.clipboard))
+    Ok(_output)
   }
 }
