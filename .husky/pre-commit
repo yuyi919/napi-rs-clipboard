@@ -1,5 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 cargo clippy --fix --allow-staged
+cargo fmt
 git add .
 yarn lint-staged

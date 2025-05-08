@@ -114,7 +114,7 @@ impl WriteTask {
     handle: Box<dyn FnMut(&crate::Clipboard) -> bool + Send>,
   ) -> WriteTask {
     // 创建异步任务
-    
+
     WriteTask {
       clipboard: clipboard.clone(),
       handle,

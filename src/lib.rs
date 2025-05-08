@@ -213,12 +213,7 @@ impl Clipboard {
     signal: Option<AbortSignal>,
   ) -> AsyncTask<clipboard::WriteTask> {
     AsyncTask::with_optional_signal(
-      clipboard::WriteTask::new(
-        self,
-        Box::new(move |ctx| {
-          ctx.write_image(img.clone())
-        }),
-      ),
+      clipboard::WriteTask::new(self, Box::new(move |ctx| ctx.write_image(img.clone()))),
       signal,
     )
   }
