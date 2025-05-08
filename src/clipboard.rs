@@ -43,8 +43,8 @@ pub fn get_text(ctx: &ClipboardContext) -> clipboard_rs::Result<String> {
   ctx.get_text()
 }
 
-pub fn set_text(ctx: &ClipboardContext, text: String) -> clipboard_rs::Result<()> {
-  ctx.set_text(text)
+pub fn set_text(ctx: &ClipboardContext, text: &str) -> clipboard_rs::Result<()> {
+  ctx.set_text(text.to_string())
 }
 
 pub fn get_files(ctx: &ClipboardContext) -> clipboard_rs::Result<Vec<String>> {

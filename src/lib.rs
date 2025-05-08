@@ -80,7 +80,6 @@ impl Clipboard {
   //   };
   //   return s;
   // }
-
   fn inner_read_opt(&self) -> Option<RwLockReadGuard<'_, InnerContext>> {
     let guard = self.instance.read();
     if guard.is_ok() {
@@ -118,7 +117,7 @@ impl Clipboard {
     F: FnOnce(&clipboard_rs::ClipboardContext) -> clipboard_rs::Result<U>,
   {
     let guard: RwLockReadGuard<'_, InnerContext> = self.inner_read();
-    let ctx = guard.as_ref().unwrap().as_ref();
+    let ctx = guard.as_ref().unwrap();
     match ctx {
       Ok(ctx) => match f(ctx) {
         Ok(t) => Ok(t),
@@ -147,7 +146,14 @@ impl Clipboard {
       return Ok(());
     } else {
       // we're probably running on a host/primary OS, so use the default clipboard
-      return self.try_read(|ctx| clipboard::set_text(ctx, text));
+      return self
+        .try_read(|ctx| clipboard::set_text(ctx, &text))
+        .or_else(move |_| {
+          arboard::Clipboard::new()
+            .unwrap()
+            .set_text(&text)
+            .map_err(|e| Error::new(GenericFailure, format!("{e}")))
+        });
     }
   }
 
@@ -160,7 +166,12 @@ impl Clipboard {
       // None
     } else {
       // we're probably running on a host/primary OS, so use the default clipboard
-      self.try_read(clipboard::get_text)
+      self.try_read(clipboard::get_text).or_else(|_| {
+        arboard::Clipboard::new()
+          .unwrap()
+          .get_text()
+          .map_err(|e| Error::new(GenericFailure, format!("{e}")))
+      })
     }
   }
 

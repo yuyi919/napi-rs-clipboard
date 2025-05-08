@@ -10,6 +10,7 @@ version = "0.1.0"
 crate-type = ["cdylib"]
 
 [dependencies]
+arboard = { version = "3", features = ["wayland-data-control"] }
 base64 = "0.22.0"
 clipboard-rs = "0.2.4"
 duct = "1.0.0"
