@@ -5,8 +5,8 @@ use clipboard_rs::{
 };
 use napi::bindgen_prelude::*;
 
-pub fn ctx() -> Option<ClipboardContext> {
-  ClipboardContext::new().ok()
+pub fn ctx() -> clipboard_rs::Result<ClipboardContext> {
+  ClipboardContext::new()
 }
 
 pub fn read_image(

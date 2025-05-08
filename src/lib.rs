@@ -61,10 +61,12 @@ fn set_wsl_clipboard(s: String) -> Result<()> {
   Ok(())
 }
 
+type InnerContext = Option<clipboard_rs::Result<clipboard_rs::ClipboardContext>>;
+
 #[derive(Clone)]
 #[napi]
 pub struct Clipboard {
-  instance: Arc<RwLock<Option<clipboard_rs::ClipboardContext>>>,
+  instance: Arc<RwLock<InnerContext>>,
 }
 
 #[napi]
@@ -79,9 +81,7 @@ impl Clipboard {
   //   return s;
   // }
 
-  fn inner_read(
-    &self,
-  ) -> Option<std::sync::RwLockReadGuard<'_, Option<clipboard_rs::ClipboardContext>>> {
+  fn inner_read_opt(&self) -> Option<std::sync::RwLockReadGuard<'_, InnerContext>> {
     let guard = self.instance.read();
     if guard.is_ok() {
       let lock = guard.unwrap();
@@ -89,23 +89,41 @@ impl Clipboard {
         return Some(lock);
       }
       drop(lock);
-    };
+    }
     let mut guard = self.instance.write().unwrap();
-    *guard = clipboard::ctx();
+    *guard = Some(clipboard::ctx());
     println!("[clipboard] init ctx");
     drop(guard);
-    let guard = self.instance.read().unwrap();
-    Some(guard)
+    Some(self.instance.read().unwrap())
+  }
+
+  fn inner_read(&self) -> std::sync::RwLockReadGuard<'_, InnerContext> {
+    let guard = self.instance.read();
+    if guard.is_ok() {
+      let lock = guard.unwrap();
+      if lock.is_some() {
+        return lock;
+      }
+      drop(lock);
+    }
+    let mut guard = self.instance.write().unwrap();
+    *guard = Some(clipboard::ctx());
+    println!("[clipboard] init ctx");
+    drop(guard);
+    self.instance.read().unwrap()
   }
 
   pub fn try_read<U, F>(&self, f: F) -> Result<U>
   where
     F: FnOnce(&clipboard_rs::ClipboardContext) -> clipboard_rs::Result<U>,
   {
-    let guard = self.inner_read().unwrap();
+    let guard = self.inner_read();
     let ctx = guard.as_ref().unwrap();
-    match f(ctx) {
-      Ok(t) => Ok(t),
+    match ctx {
+      Ok(ctx) => match f(ctx) {
+        Ok(t) => Ok(t),
+        Err(err) => Err(Error::new(GenericFailure, format!("{err}"))),
+      },
       Err(err) => Err(Error::new(GenericFailure, format!("{err}"))),
     }
   }
@@ -158,9 +176,7 @@ impl Clipboard {
 
   #[napi]
   pub fn read_files(&self) -> Option<Vec<String>> {
-    let ctx = self.inner_read()?;
-    let ctx = ctx.as_ref()?;
-    clipboard::get_files(ctx).ok()
+    self.try_read(clipboard::get_files).ok()
   }
 
   #[napi]
@@ -172,9 +188,7 @@ impl Clipboard {
 
   #[napi]
   pub fn read_html(&self) -> Option<String> {
-    let ctx = self.inner_read()?;
-    let ctx = ctx.as_ref()?;
-    clipboard::get_html(ctx).ok()
+    self.try_read(clipboard::get_html).ok()
   }
 
   #[napi]
@@ -184,8 +198,12 @@ impl Clipboard {
 
   #[napi]
   pub fn get_all_kinds(&self) -> Option<Vec<String>> {
-    let ctx = self.inner_read()?;
+    let ctx = self.inner_read_opt()?;
     let ctx = ctx.as_ref()?;
+    if ctx.is_err() {
+      return None;
+    }
+    let ctx = ctx.as_ref().unwrap();
     let vec = clipboard::get_all_text_kind(ctx)?;
 
     Some(vec.iter().map(|a| format!("{:?}", a)).collect())
@@ -193,9 +211,7 @@ impl Clipboard {
 
   #[napi]
   pub fn read_image(&self, kind: Option<clipboard::ImageFormatKind>) -> Option<Buffer> {
-    let ctx = self.inner_read()?;
-    let ctx = ctx.as_ref()?;
-    clipboard::read_image(ctx, kind).ok()
+    self.try_read(|ctx| clipboard::read_image(ctx, kind)).ok()
   }
 
   #[napi]
