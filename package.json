@@ -53,7 +53,8 @@
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "version": "napi version",
-    "prepare": "husky"
+    "prepare": "husky",
+    "up:patch": "npm version patch && git push"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.4",

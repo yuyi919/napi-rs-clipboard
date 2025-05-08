@@ -8,8 +8,9 @@ export const enum ImageFormatKind {
   Jpeg = 1,
   Bmp = 2,
 }
+export declare function make(): Clipboard
 export declare class Clipboard {
-  static make(): Clipboard
+  constructor()
   /**
    * Copy text to the clipboard. Has special handling for WSL and SSH sessions, otherwise
    * falls back to the cross-platform `clipboard` crate

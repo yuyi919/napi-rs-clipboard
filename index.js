@@ -284,7 +284,8 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { ImageFormatKind, Clipboard } = nativeBinding
+const { ImageFormatKind, Clipboard, make } = nativeBinding
 
 module.exports.ImageFormatKind = ImageFormatKind
 module.exports.Clipboard = Clipboard
+module.exports.make = make

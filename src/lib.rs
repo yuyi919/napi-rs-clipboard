@@ -70,7 +70,25 @@ pub struct Clipboard {
 }
 
 #[napi]
+pub fn make() -> Clipboard {
+  Clipboard {
+    instance: Arc::new(RwLock::new(None)),
+  }
+}
+
+impl Default for Clipboard {
+  fn default() -> Self {
+    make()
+  }
+}
+
+#[napi]
 impl Clipboard {
+  /* */
+  #[napi(constructor)]
+  pub fn new() -> Self {
+    make()
+  }
   // fn inner(&mut self) -> std::sync::RwLockWriteGuard<'_, Option<clipboard_rs::ClipboardContext>> {
   //   let mut s: std::sync::RwLockWriteGuard<'_, Option<clipboard_rs::ClipboardContext>> =
   //     self.lazy_inner.write().unwrap();
@@ -124,13 +142,6 @@ impl Clipboard {
         Err(err) => Err(Error::new(GenericFailure, err)),
       },
       Err(err) => Err(Error::new(GenericFailure, format!("[clipboard_rs] {err}"))),
-    }
-  }
-
-  #[napi]
-  pub fn make() -> Clipboard {
-    Clipboard {
-      instance: Arc::new(RwLock::new(None)),
     }
   }
 

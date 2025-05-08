@@ -58,7 +58,7 @@ import assert from 'assert'
 // });
 
 test('img write', async (t) => {
-  const clipboard = _.Clipboard.make()
+  const clipboard = _.make()
   // // const rawBuf = clipboard.readImage()
   const rawBuf = readFileSync(join(fileURLToPath(import.meta.url), '..', 'test.png'))
   // t.assert(rawBuf !== null);
