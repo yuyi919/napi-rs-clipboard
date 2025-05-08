@@ -10,7 +10,6 @@ version = "0.1.0"
 crate-type = ["cdylib"]
 
 [dependencies]
-arboard = { version = "3", features = ["wayland-data-control"] }
 base64 = "0.22.0"
 clipboard-rs = "0.2.4"
 duct = "1.0.0"
@@ -27,4 +26,6 @@ wsl = "0.1.0"
 napi-build = "2"
 
 [profile.release]
-lto = true
+codegen-units = 1    # 允许 LLVM 执行更好的优化。
+lto           = true # 启用链接时优化。
+opt-level     = 3    # 优先考虑小的二进制文件大小。如果您更喜欢速度，请使用 `3`。

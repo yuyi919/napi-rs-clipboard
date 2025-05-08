@@ -52,7 +52,6 @@ pub enum ImageFormatKind {
   #[default]
   Png,
   Jpeg,
-  #[cfg(target_os = "windows")]
   Bmp,
 }
 #[derive(Debug, Clone)]
