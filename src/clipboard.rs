@@ -14,6 +14,7 @@ pub fn read_image(ctx: &ClipboardContext, kind: Option<ImageFormatKind>) -> Opti
 
   let png = (match kind.unwrap_or_default() {
     ImageFormatKind::Jpeg => img.to_jpeg(),
+    #[cfg(target_os = "windows")]
     ImageFormatKind::Bmp => img.to_bitmap(),
     _ => img.to_png(),
   })
@@ -51,6 +52,7 @@ pub enum ImageFormatKind {
   #[default]
   Png,
   Jpeg,
+  #[cfg(target_os = "windows")]
   Bmp,
 }
 #[derive(Debug, Clone)]
