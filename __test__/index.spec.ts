@@ -70,7 +70,7 @@ test('img write', async (t) => {
   // // ctl.abort()
   // // console.log("abort")
   t.assert((await promise) === true)
-  t.notThrowsAsync(async () => {
+  await t.notThrowsAsync(async () => {
     const readBuf2 = await clipboard.readImageAsync()
     // writeFileSync("./__test__/test3.png", readBuf);
     writeFileSync('./__test__/__output.png', readBuf2)
