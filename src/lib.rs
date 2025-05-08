@@ -150,8 +150,10 @@ impl Clipboard {
         .try_read(|ctx| clipboard::set_text(ctx, &text))
         .or_else(move |_| {
           arboard::Clipboard::new()
-            .unwrap()
-            .set_text(&text)
+            .and_then(|ctx| {
+              let mut ctx = ctx;
+              ctx.set_text(&text)
+            })
             .map_err(|e| Error::new(GenericFailure, format!("{e}")))
         });
     }
@@ -168,8 +170,10 @@ impl Clipboard {
       // we're probably running on a host/primary OS, so use the default clipboard
       self.try_read(clipboard::get_text).or_else(|_| {
         arboard::Clipboard::new()
-          .unwrap()
-          .get_text()
+          .and_then(|ctx| {
+            let mut ctx = ctx;
+            ctx.get_text()
+          })
           .map_err(|e| Error::new(GenericFailure, format!("{e}")))
       })
     }
