@@ -1,6 +1,6 @@
 {
   "name": "@yuyi919/napi-rs-clipboard-darwin-x64",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "os": [
     "darwin"
   ],

@@ -1,6 +1,6 @@
 {
   "name": "@yuyi919/napi-rs-clipboard",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Template project for writing node package with napi-rs",
   "main": "index.js",
   "repository": "git@github.com:yuyi919/napi-rs-clipboard.git",
