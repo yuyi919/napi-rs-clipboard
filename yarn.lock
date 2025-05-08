@@ -82,25 +82,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yuyi919/napi-rs-clipboard@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@yuyi919/napi-rs-clipboard@workspace:."
-  dependencies:
-    "@napi-rs/cli": "npm:^2.18.4"
-    "@oxc-node/core": "npm:^0.0.27"
-    "@taplo/cli": "npm:^0.7.0"
-    ava: "npm:^6.2.0"
-    chalk: "npm:^5.4.1"
-    husky: "npm:^9.1.7"
-    lint-staged: "npm:^15.5.0"
-    npm-run-all2: "npm:^8.0.0"
-    oxlint: "npm:^0.16.3"
-    prettier: "npm:^3.5.3"
-    tinybench: "npm:^4.0.1"
-    typescript: "npm:^5.8.2"
-  languageName: unknown
-  linkType: soft
-
 "@napi-rs/wasm-runtime@npm:^0.2.9":
   version: 0.2.9
   resolution: "@napi-rs/wasm-runtime@npm:0.2.9"
@@ -422,6 +403,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^22.15.16":
+  version: 22.15.16
+  resolution: "@types/node@npm:22.15.16"
+  dependencies:
+    undici-types: "npm:~6.21.0"
+  checksum: 10c0/2bdcca01306fcf991d9255e329425747bdd3b62c7ba9e7d4021969d46f3c9984a4ad2c27ababb4f3b05d49a9e05fc0a8bfce8b452c9b43995e10aca6f66b33bc
+  languageName: node
+  linkType: hard
+
 "@vercel/nft@npm:^0.27.5":
   version: 0.27.10
   resolution: "@vercel/nft@npm:0.27.10"
@@ -443,6 +433,26 @@ __metadata:
   checksum: 10c0/8fec187317d8e390e00f5cacc07839add40a67977dfce2edab0844b51821d012bb807d692c08b0ede03e767e735fb592e6c71d6dd2379ba4dc298a96df09e3d6
   languageName: node
   linkType: hard
+
+"@yuyi919/napi-rs-clipboard@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@yuyi919/napi-rs-clipboard@workspace:."
+  dependencies:
+    "@napi-rs/cli": "npm:^2.18.4"
+    "@oxc-node/core": "npm:^0.0.27"
+    "@taplo/cli": "npm:^0.7.0"
+    "@types/node": "npm:^22.15.16"
+    ava: "npm:^6.2.0"
+    chalk: "npm:^5.4.1"
+    husky: "npm:^9.1.7"
+    lint-staged: "npm:^15.5.0"
+    npm-run-all2: "npm:^8.0.0"
+    oxlint: "npm:^0.16.3"
+    prettier: "npm:^3.5.3"
+    tinybench: "npm:^4.0.1"
+    typescript: "npm:^5.8.2"
+  languageName: unknown
+  linkType: soft
 
 "abbrev@npm:^3.0.0":
   version: 3.0.0
@@ -2155,6 +2165,13 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/5448a08e595cc558ab321e49d4cac64fb43d1fa106584f6ff9a8d8e592111b373a995a1d5c7f3046211c8a37201eb6d0f1566f15cdb7a62a5e3be01d087848e2
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.21.0":
+  version: 6.21.0
+  resolution: "undici-types@npm:6.21.0"
+  checksum: 10c0/c01ed51829b10aa72fc3ce64b747f8e74ae9b60eafa19a7b46ef624403508a54c526ffab06a14a26b3120d055e1104d7abe7c9017e83ced038ea5cf52f8d5e04
   languageName: node
   linkType: hard
 
