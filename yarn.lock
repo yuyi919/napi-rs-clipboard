@@ -82,9 +82,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@napi-rs/package-template@workspace:.":
+"@yuyi919/napi-rs-clipboard@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@napi-rs/package-template@workspace:."
+  resolution: "@yuyi919/napi-rs-clipboard@workspace:."
   dependencies:
     "@napi-rs/cli": "npm:^2.18.4"
     "@oxc-node/core": "npm:^0.0.27"

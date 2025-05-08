@@ -1,3 +1,3 @@
-# `@napi-rs/package-template-darwin-x64`
+# `@yuyi919/napi-rs-clipboard-darwin-x64`
 
-This is the **x86_64-apple-darwin** binary for `@napi-rs/package-template`
+This is the **x86_64-apple-darwin** binary for `@yuyi919/napi-rs-clipboard`
