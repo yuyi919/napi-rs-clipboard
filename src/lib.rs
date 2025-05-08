@@ -9,8 +9,8 @@ use napi::bindgen_prelude::Buffer;
 use std::env;
 use std::io::Write;
 use std::process::{Command, Stdio};
-use std::sync::{Arc, RwLock};
-// use tokio::sync::{RwLock as AsyncRwLock};
+use std::sync::{Arc, RwLock, RwLockReadGuard};
+// use tokio::sync::{RwLock, RwLockReadGuard};
 // use std::thread::sleep;
 // use std::time::Duration;
 
@@ -81,7 +81,7 @@ impl Clipboard {
   //   return s;
   // }
 
-  fn inner_read_opt(&self) -> Option<std::sync::RwLockReadGuard<'_, InnerContext>> {
+  fn inner_read_opt(&self) -> Option<RwLockReadGuard<'_, InnerContext>> {
     let guard = self.instance.read();
     if guard.is_ok() {
       let lock = guard.unwrap();
@@ -97,7 +97,7 @@ impl Clipboard {
     Some(self.instance.read().unwrap())
   }
 
-  fn inner_read(&self) -> std::sync::RwLockReadGuard<'_, InnerContext> {
+  fn inner_read(&self) -> RwLockReadGuard<'_, InnerContext> {
     let guard = self.instance.read();
     if guard.is_ok() {
       let lock = guard.unwrap();
@@ -117,8 +117,8 @@ impl Clipboard {
   where
     F: FnOnce(&clipboard_rs::ClipboardContext) -> clipboard_rs::Result<U>,
   {
-    let guard = self.inner_read();
-    let ctx = guard.as_ref().unwrap();
+    let guard: RwLockReadGuard<'_, InnerContext> = self.inner_read();
+    let ctx = guard.as_ref().unwrap().as_ref();
     match ctx {
       Ok(ctx) => match f(ctx) {
         Ok(t) => Ok(t),
@@ -215,10 +215,15 @@ impl Clipboard {
   }
 
   #[napi]
-  pub fn write_image(&self, img: Buffer) -> bool {
+  pub fn write_image_exn(&self, img: Buffer) -> Result<bool> {
     self
       .try_read(|ctx| clipboard::write_image(ctx, img))
-      .is_ok()
+      .and(Ok(true))
+  }
+
+  #[napi]
+  pub fn write_image(&self, img: Buffer) -> bool {
+    self.write_image_exn(img).is_ok()
   }
 
   #[napi]
@@ -235,7 +240,7 @@ impl Clipboard {
     signal: Option<AbortSignal>,
   ) -> AsyncTask<clipboard::WriteTask> {
     AsyncTask::with_optional_signal(
-      clipboard::WriteTask::new(self, Box::new(move |ctx| ctx.write_image(img.clone()))),
+      clipboard::WriteTask::new(self, Box::new(move |ctx| ctx.write_image_exn(img.clone()))),
       signal,
     )
   }

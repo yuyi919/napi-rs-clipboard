@@ -107,13 +107,13 @@ pub fn get_all_text_kind(ctx: &ClipboardContext) -> Option<Vec<OutputContentForm
 
 pub struct WriteTask {
   clipboard: crate::Clipboard,
-  handle: Box<dyn FnMut(&crate::Clipboard) -> bool + Send>, //   pub img: Buffer,
+  handle: Box<dyn FnMut(&crate::Clipboard) -> Result<bool> + Send>, //   pub img: Buffer,
 }
 
 impl WriteTask {
   pub fn new(
     clipboard: &crate::Clipboard,
-    handle: Box<dyn FnMut(&crate::Clipboard) -> bool + Send>,
+    handle: Box<dyn FnMut(&crate::Clipboard) -> Result<bool> + Send>,
   ) -> WriteTask {
     // 创建异步任务
     WriteTask {
@@ -129,7 +129,7 @@ impl Task for WriteTask {
   type JsValue = bool;
 
   fn compute(&mut self) -> Result<Self::Output> {
-    Ok((self.handle)(&self.clipboard))
+    (self.handle)(&self.clipboard)
   }
 
   fn resolve(&mut self, _env: Env, _output: Self::Output) -> Result<Self::JsValue> {

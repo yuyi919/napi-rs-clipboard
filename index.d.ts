@@ -23,6 +23,7 @@ export declare class Clipboard {
   writeHtml(html: string): boolean
   getAllKinds(): Array<string> | null
   readImage(kind?: ImageFormatKind | undefined | null): Buffer | null
+  writeImageExn(img: Buffer): boolean
   writeImage(img: Buffer): boolean
   readImageAsync(kind?: ImageFormatKind | undefined | null): Promise<Buffer>
   writeImageAsync(img: Buffer, signal?: AbortSignal | undefined | null): Promise<boolean>
