@@ -122,9 +122,9 @@ impl Clipboard {
     match ctx {
       Ok(ctx) => match f(ctx) {
         Ok(t) => Ok(t),
-        Err(err) => Err(Error::new(GenericFailure, format!("{err}"))),
+        Err(err) => Err(Error::new(GenericFailure, err)),
       },
-      Err(err) => Err(Error::new(GenericFailure, format!("{err}"))),
+      Err(err) => Err(Error::new(GenericFailure, format!("[clipboard_rs] {err}"))),
     }
   }
 

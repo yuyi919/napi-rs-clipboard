@@ -1,5 +1,3 @@
-#![deny(clippy::all)]
-
 use clipboard_rs::{
   common::RustImage, Clipboard, ClipboardContent, ClipboardContext, ContentFormat, RustImageData,
 };
@@ -107,14 +105,12 @@ pub fn get_all_text_kind(ctx: &ClipboardContext) -> Option<Vec<OutputContentForm
 
 pub struct WriteTask {
   clipboard: crate::Clipboard,
-  handle: Box<dyn FnMut(&crate::Clipboard) -> Result<bool> + Send>, //   pub img: Buffer,
+  handle: TaskHandle, //   pub img: Buffer,
 }
+type TaskHandle = Box<dyn FnMut(&crate::Clipboard) -> Result<bool> + Send>;
 
 impl WriteTask {
-  pub fn new(
-    clipboard: &crate::Clipboard,
-    handle: Box<dyn FnMut(&crate::Clipboard) -> Result<bool> + Send>,
-  ) -> WriteTask {
+  pub fn new(clipboard: &crate::Clipboard, handle: TaskHandle) -> WriteTask {
     // 创建异步任务
     WriteTask {
       clipboard: clipboard.clone(),
