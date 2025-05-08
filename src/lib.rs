@@ -90,7 +90,7 @@ impl Clipboard {
       }
       drop(lock);
     };
-    let mut guard = self.instance.write().ok()?;
+    let mut guard = self.instance.write().unwrap();
     *guard = clipboard::ctx();
     println!("[clipboard] init ctx");
     drop(guard);
